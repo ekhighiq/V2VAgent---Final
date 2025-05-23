@@ -8,24 +8,12 @@ import { Inter } from "next/font/google";
 import Head from "next/head";
 import { useCallback, useState } from "react";
 
-import { PlaygroundConnect } from "@/components/PlaygroundConnect";
 import Playground from "@/components/playground/Playground";
 import { PlaygroundToast, ToastType } from "@/components/toast/PlaygroundToast";
 import { ConfigProvider, useConfig } from "@/hooks/useConfig";
 import { ConnectionMode, ConnectionProvider, useConnection } from "@/hooks/useConnection";
 import { useMemo } from "react";
 import { ToastProvider, useToast } from "@/components/toast/ToasterProvider";
-
-const themeColors = [
-  "cyan",
-  "green",
-  "amber",
-  "blue",
-  "violet",
-  "rose",
-  "pink",
-  "teal",
-];
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -69,7 +57,6 @@ export function HomeInner() {
     <>
       <Head>
         <title>{config.title}</title>
-        <meta name="description" content={config.description} />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
@@ -97,7 +84,6 @@ export function HomeInner() {
             </motion.div>
           )}
         </AnimatePresence>
-        {showPG ? (
           <LiveKitRoom
             className="flex flex-col h-full w-full"
             serverUrl={wsUrl}
@@ -109,7 +95,6 @@ export function HomeInner() {
             }}
           >
             <Playground
-              themeColors={themeColors}
               onConnect={(c) => {
                 const m = process.env.NEXT_PUBLIC_LIVEKIT_URL ? "env" : mode;
                 handleConnect(c, m);
@@ -118,13 +103,6 @@ export function HomeInner() {
             <RoomAudioRenderer />
             <StartAudio label="Click to enable audio playback" />
           </LiveKitRoom>
-        ) : (
-          <PlaygroundConnect
-            onConnectClicked={(mode) => {
-              handleConnect(true, mode);
-            }}
-          />
-        )}
       </main>
     </>
   );

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCloud } from "@/cloud/useCloud";
+import { useCloud } from "@/hooks/useCloud";
 import React, { createContext, useState } from "react";
 import { useCallback } from "react";
 import { useConfig } from "./useConfig";
@@ -45,7 +45,7 @@ export const ConnectionProvider = ({
           setToastMessage({
             type: "error",
             message:
-              "Failed to generate token, you may need to increase your role in this LiveKit Cloud project.",
+              "Failed to generate token.",
           });
         }
         url = cloudWSUrl;

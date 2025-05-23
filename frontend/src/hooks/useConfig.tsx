@@ -13,17 +13,13 @@ import React, {
 
 export type AppConfig = {
   title: string;
-  description: string;
   settings: UserSettings;
   show_qr?: boolean;
 };
 
 export type UserSettings = {
-  editable: boolean;
-  theme_color: string;
   chat: boolean;
   inputs: {
-    screen: boolean;
     mic: boolean;
   };
   outputs: {
@@ -37,14 +33,10 @@ export type UserSettings = {
 
 // Fallback if NEXT_PUBLIC_APP_CONFIG is not set
 const defaultConfig: AppConfig = {
-  title: "LiveKit Agents Playground",
-  description: "A virtual workbench for testing multimodal AI agents.",
+  title: "HighIQ Voice Assistant",
   settings: {
-    editable: true,
-    theme_color: "cyan",
     chat: true,
     inputs: {
-      screen: true,
       mic: true,
     },
     outputs: {
@@ -60,22 +52,6 @@ const defaultConfig: AppConfig = {
 
 const useAppConfig = (): AppConfig => {
   return useMemo(() => {
-    if (process.env.NEXT_PUBLIC_APP_CONFIG) {
-      try {
-        const parsedConfig = jsYaml.load(
-          process.env.NEXT_PUBLIC_APP_CONFIG
-        ) as AppConfig;
-        if (parsedConfig.settings === undefined) {
-          parsedConfig.settings = defaultConfig.settings;
-        }
-        if (parsedConfig.settings.editable === undefined) {
-          parsedConfig.settings.editable = true;
-        }
-        return parsedConfig;
-      } catch (e) {
-        console.error("Error parsing app config:", e);
-      }
-    }
     return defaultConfig;
   }, []);
 };
@@ -102,16 +78,11 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
       return null;
     }
     const appConfigFromSettings = appConfig;
-    if (appConfigFromSettings.settings.editable === false) {
-      return null;
-    }
+    
     const params = new URLSearchParams(window.location.hash.replace("#", ""));
     return {
-      editable: true,
       chat: params.get("chat") === "1",
-      theme_color: params.get("theme_color"),
       inputs: {
-        screen: params.get("screen") === "1",
         mic: params.get("mic") === "1",
       },
       outputs: {
@@ -127,10 +98,8 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
 
   const getSettingsFromCookies = useCallback(() => {
     const appConfigFromSettings = appConfig;
-    if (appConfigFromSettings.settings.editable === false) {
-      return null;
-    }
-    const jsonSettings = getCookie("lk_settings");
+  
+    const jsonSettings = getCookie("hi_settings");
     if (!jsonSettings) {
       return null;
     }
@@ -141,10 +110,8 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
     (us: UserSettings) => {
       const obj = new URLSearchParams({
         mic: boolToString(us.inputs.mic),
-        screen: boolToString(us.inputs.screen),
         audio: boolToString(us.outputs.audio),
         chat: boolToString(us.chat),
-        theme_color: us.theme_color || "cyan",
       });
       // Note: We don't set ws_url and token to the URL on purpose
       router.replace("/#" + obj.toString());
@@ -154,18 +121,12 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
 
   const setCookieSettings = useCallback((us: UserSettings) => {
     const json = JSON.stringify(us);
-    setCookie("lk_settings", json);
+    setCookie("hi_settings", json);
   }, []);
 
   const getConfig = useCallback(() => {
     const appConfigFromSettings = appConfig;
 
-    if (appConfigFromSettings.settings.editable === false) {
-      if (localColorOverride) {
-        appConfigFromSettings.settings.theme_color = localColorOverride;
-      }
-      return appConfigFromSettings;
-    }
     const cookieSettigs = getSettingsFromCookies();
     const urlSettings = getSettingsFromUrl();
     if (!cookieSettigs) {
@@ -196,10 +157,6 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
   const setUserSettings = useCallback(
     (settings: UserSettings) => {
       const appConfigFromSettings = appConfig;
-      if (appConfigFromSettings.settings.editable === false) {
-        setLocalColorOverride(settings.theme_color);
-        return;
-      }
       setUrlSettings(settings);
       setCookieSettings(settings);
       _setConfig((prev) => {

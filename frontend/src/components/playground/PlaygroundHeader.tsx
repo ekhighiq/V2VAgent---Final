@@ -1,10 +1,9 @@
 import { Button } from "@/components/button/Button";
 import { LoadingSVG } from "@/components/button/LoadingSVG";
-import { useConfig } from "@/hooks/useConfig";
 import { ConnectionState } from "livekit-client";
 import { ReactNode } from "react";
 import Image from "next/image";
-import lkLogo from '../../assets/highiq_logo.png';
+import hiLogo from '../../assets/highiq_logo.png';
 
 type PlaygroundHeaderProps = {
   logo?: ReactNode;
@@ -21,12 +20,10 @@ export const PlaygroundHeader = ({
   onConnectClicked,
   connectionState,
 }: PlaygroundHeaderProps) => {
-  const { config } = useConfig();
-
   return (
     <div className="flex gap-4 pt-4 justify-between items-center shrink-0" style={{ height: `${height}px` }}>
       <div className="flex items-center gap-3 basis-2/3">
-        <a href="https://livekit.io">{logo ?? <LKLogo />}</a>
+        <a href="https://highiq.ai/">{logo ?? <HiLogo />}</a>
         <div className="lg:basis-1/2 lg:text-center text-xs lg:text-base lg:font-semibold text-white">
           {title}
         </div>
@@ -43,5 +40,5 @@ export const PlaygroundHeader = ({
   );
 };
 
-const LKLogo = () => <Image src={lkLogo} alt="LK Logo" width={50} height={50} />;
+const HiLogo = () => <Image src={hiLogo} alt="Logo" width={50} height={50} />;
 

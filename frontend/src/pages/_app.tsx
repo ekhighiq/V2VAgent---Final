@@ -1,4 +1,4 @@
-import { CloudProvider } from "@/cloud/useCloud";
+import { CloudProvider } from "@/hooks/useCloud";
 import "@livekit/components-styles/components/participant";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";

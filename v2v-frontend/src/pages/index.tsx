@@ -1,31 +1,20 @@
-import {
-  LiveKitRoom,
-  RoomAudioRenderer,
-  StartAudio,
-} from "@livekit/components-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { LiveKitRoom, RoomAudioRenderer, StartAudio} from "@livekit/components-react";
 import { Inter } from "next/font/google";
 import Head from "next/head";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 import Playground from "@/components/playground/Playground";
-import { PlaygroundToast, ToastType } from "@/components/toast/PlaygroundToast";
 import { ConfigProvider, useConfig } from "@/hooks/useConfig";
 import { ConnectionMode, ConnectionProvider, useConnection } from "@/hooks/useConnection";
 import { useMemo } from "react";
-import { ToastProvider, useToast } from "@/components/toast/ToasterProvider";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   return (
-    <ToastProvider>
       <ConfigProvider>
         <ConnectionProvider>
           <HomeInner />
         </ConnectionProvider>
       </ConfigProvider>
-    </ToastProvider>
   );
 }
 
@@ -34,7 +23,6 @@ export function HomeInner() {
     useConnection();
   
   const {config} = useConfig();
-  const { toastMessage, setToastMessage } = useToast();
 
   const handleConnect = useCallback(
     async (c: boolean, mode: ConnectionMode) => {
@@ -50,17 +38,7 @@ export function HomeInner() {
       }
     };
     const timer = setTimeout(performAutoConnect, 10);
-  }, []); 
-
-  const showPG = useMemo(() => {
-    if (process.env.NEXT_PUBLIC_LIVEKIT_URL) {
-      return true;
-    }
-    if(wsUrl) {
-      return true;
-    }
-    return false;
-  }, [wsUrl])
+  }, []);  
 
   return (
     <>
@@ -81,27 +59,11 @@ export function HomeInner() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="relative flex flex-col justify-center px-4 items-center h-full w-full bg-black repeating-square-background">
-        <AnimatePresence>
-          {toastMessage && (
-            <motion.div
-              className="left-0 right-0 top-0 absolute z-10"
-              initial={{ opacity: 0, translateY: -50 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              exit={{ opacity: 0, translateY: -50 }}
-            >
-              <PlaygroundToast />
-            </motion.div>
-          )}
-        </AnimatePresence>
           <LiveKitRoom
             className="flex flex-col h-full w-full"
             serverUrl={wsUrl}
             token={token}
             connect={shouldConnect}
-            onError={(e) => {
-              setToastMessage({ message: e.message, type: "error" });
-              console.error(e);
-            }}
           >
             <Playground
               onConnect={(c) => {

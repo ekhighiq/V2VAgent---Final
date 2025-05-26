@@ -1,12 +1,10 @@
 "use client"
 
-import { useCloud } from "@/hooks/useCloud";
 import React, { createContext, useState } from "react";
 import { useCallback } from "react";
 import { useConfig } from "./useConfig";
-import { useToast } from "@/components/toast/ToasterProvider";
 
-export type ConnectionMode = "cloud" | "manual" | "env"
+export type ConnectionMode = "manual" | "env"
 
 type TokenGeneratorData = {
   shouldConnect: boolean;
@@ -24,8 +22,6 @@ export const ConnectionProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { generateToken, wsUrl: cloudWSUrl } = useCloud();
-  const { setToastMessage } = useToast();
   const { config } = useConfig();
   const [connectionDetails, setConnectionDetails] = useState<{
     wsUrl: string;
@@ -38,18 +34,7 @@ export const ConnectionProvider = ({
     async (mode: ConnectionMode) => {
       let token = "";
       let url = "";
-      if (mode === "cloud") {
-        try {
-          token = await generateToken();
-        } catch (error) {
-          setToastMessage({
-            type: "error",
-            message:
-              "Failed to generate token.",
-          });
-        }
-        url = cloudWSUrl;
-      } else if (mode === "env") {
+      if (mode === "env") {
         if (!process.env.NEXT_PUBLIC_LIVEKIT_URL) {
           throw new Error("NEXT_PUBLIC_LIVEKIT_URL is not set");
         }
@@ -72,13 +57,10 @@ export const ConnectionProvider = ({
       setConnectionDetails({ wsUrl: url, token, shouldConnect: true, mode });
     },
     [
-      cloudWSUrl,
       config.settings.token,
       config.settings.ws_url,
       config.settings.room_name,
       config.settings.participant_name,
-      generateToken,
-      setToastMessage,
     ]
   );
 

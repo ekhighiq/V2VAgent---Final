@@ -24,7 +24,7 @@ export const PlaygroundHeader = ({
     <div className="flex gap-4 pt-4 justify-between items-center shrink-0" style={{ height: `${height}px` }}>
       <div className="flex items-center gap-3 basis-2/3">
         <a href="https://highiq.ai/">{logo ?? <HiLogo />}</a>
-        <div className="lg:basis-1/2 lg:text-center text-xs lg:text-base lg:font-semibold text-white">
+        <div className="lg:basis-1/2 lg:text-center text-xs lg:text-base lg:font-semibold text-white" style = {{ marginLeft: '350px' }}>
           {title}
         </div>
       </div>
@@ -32,6 +32,11 @@ export const PlaygroundHeader = ({
         <Button
           disabled={connectionState === ConnectionState.Connecting}
           onClick={onConnectClicked}
+          className={
+            connectionState === ConnectionState.Connected
+              ? "flex flex-row text-gray-950 text-sm justify-center border border-transparent bg-red-500 px-3 py-1 rounded-md transition ease-out duration-250 hover:bg-transparent hover:shadow-red hover:border-red-500 hover:text-red-500 active:scale-[0.98]"
+              : "flex flex-row text-gray-950 text-sm justify-center border border-transparent bg-green-500 px-3 py-1 rounded-md transition ease-out duration-250 hover:bg-transparent hover:shadow-green hover:border-green-500 hover:text-green-500 active:scale-[0.98]"
+          }
         >
           {connectionState === ConnectionState.Connecting ? <LoadingSVG /> : connectionState === ConnectionState.Connected ? "Disconnect" : "Connect"}
         </Button>
@@ -40,5 +45,5 @@ export const PlaygroundHeader = ({
   );
 };
 
-const HiLogo = () => <Image src={hiLogo} alt="Logo" width={50} height={50} />;
+const HiLogo = () => <Image src={hiLogo} alt="Logo" width={120} height={120} />;
 

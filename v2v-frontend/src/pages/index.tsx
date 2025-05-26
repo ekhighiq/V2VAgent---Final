@@ -6,7 +6,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { Inter } from "next/font/google";
 import Head from "next/head";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 
 import Playground from "@/components/playground/Playground";
 import { PlaygroundToast, ToastType } from "@/components/toast/PlaygroundToast";
@@ -42,6 +42,15 @@ export function HomeInner() {
     },
     [connect, disconnect]
   );
+
+  useEffect(() => {
+    const performAutoConnect = () => {
+      if (!shouldConnect) {
+        handleConnect(true, "env"); 
+      }
+    };
+    const timer = setTimeout(performAutoConnect, 10);
+  }, []); 
 
   const showPG = useMemo(() => {
     if (process.env.NEXT_PUBLIC_LIVEKIT_URL) {

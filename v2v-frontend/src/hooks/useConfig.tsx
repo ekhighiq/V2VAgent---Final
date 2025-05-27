@@ -1,7 +1,6 @@
 "use client";
 
 import { getCookie, setCookie } from "cookies-next";
-import jsYaml from "js-yaml";
 import { useRouter } from "next/navigation";
 import React, {
   createContext,

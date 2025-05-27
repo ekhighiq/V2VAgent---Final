@@ -3,20 +3,35 @@
 import { LoadingSVG } from "@/components/button/LoadingSVG";
 import { ChatMessageType } from "@/components/chat/ChatTile";
 import { PlaygroundHeader } from "@/components/playground/PlaygroundHeader";
-import {
-  PlaygroundTab,
-  PlaygroundTile,
-} from "@/components/playground/PlaygroundTile";
+import { PlaygroundTile } from "@/components/playground/PlaygroundTile";
 import { TranscriptionTile } from "@/transcriptions/TranscriptionTile";
 import {
   BarVisualizer,
   useConnectionState,
   useDataChannel,
-  useLocalParticipant, 
+  useLocalParticipant,
   useVoiceAssistant,
+  TrackToggle,
 } from "@livekit/components-react";
-import { ConnectionState } from "livekit-client";
+import { ConnectionState, Track } from "livekit-client";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+
+// Responsive hook: returns true if mobile
+function useIsMobile(breakpoint = 1024) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < breakpoint : false
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < breakpoint);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoint]);
+
+  return isMobile;
+}
 
 export interface PlaygroundMeta {
   name: string;
@@ -31,7 +46,7 @@ export interface PlaygroundProps {
 const headerHeight = 56;
 
 export default function Playground({
-  logo,  
+  logo,
   onConnect,
 }: PlaygroundProps) {
   const [transcripts, setTranscripts] = useState<ChatMessageType[]>([]);
@@ -40,6 +55,9 @@ export default function Playground({
   const voiceAssistant = useVoiceAssistant();
 
   const roomState = useConnectionState();
+
+  // Responsive check
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (roomState === ConnectionState.Connected) {
@@ -75,8 +93,8 @@ export default function Playground({
 
   const audioTileContent = useMemo(() => {
     const disconnectedContent = (
-      <div className="flex flex-col items-center justify-center gap-2 text-gray-700 text-center w-full">
-        No audio track. Connect to get started.
+      <div className="flex flex-col items-center justify-center gap-2 text-gray-400 text-center w-full">
+        Connect to get started.
       </div>
     );
 
@@ -89,8 +107,22 @@ export default function Playground({
 
     const visualizerContent = (
       <div
-        className={`flex items-center justify-center w-full h-48 [--lk-va-bar-width:30px] [--lk-va-bar-gap:20px] [--lk-fg:var(--lk-theme-color)]`}
+        className={`flex flex-col items-center justify-center w-full h-48 [--lk-va-bar-width:30px] [--lk-va-bar-gap:20px] [--lk-fg:var(--lk-theme-color)]`}
       >
+        {/* Responsive mute/unmute button above visualizer, no background or border */}
+        <div className="mb-4 flex justify-center">
+          <TrackToggle
+            source={Track.Source.Microphone}
+            className="
+              px-4 py-2 text-base
+              sm:px-6 sm:py-3 sm:text-lg
+              md:px-8 md:py-4 md:text-xl
+              bg-transparent text-gray-300 border-0 rounded-md
+              hover:bg-gray-800 transition duration-200
+              focus:outline-none
+            "
+          />
+        </div>
         <BarVisualizer
           state={voiceAssistant.state}
           trackRef={voiceAssistant.audioTrack}
@@ -125,25 +157,6 @@ export default function Playground({
     }
     return <></>;
   }, [voiceAssistant.audioTrack, voiceAssistant.agent]);
-  
-  let mobileTabs: PlaygroundTab[] = []; 
-  
-  mobileTabs.push({
-    title: "Audio",
-    content: (
-      <PlaygroundTile
-        className="w-full h-full grow"
-        childrenClassName="justify-center"
-      >
-        {audioTileContent}
-      </PlaygroundTile>
-    ),
-  });  
-
-  mobileTabs.push({
-    title: "Chat",
-    content: chatTileContent,
-  });
 
   return (
     <>
@@ -156,28 +169,60 @@ export default function Playground({
           onConnect(roomState === ConnectionState.Disconnected)
         }
       />
-      <div
-        className={`flex gap-4 py-4 grow w-full selection:bg-green-900`}
-        style={{ height: `calc(100% - ${headerHeight}px)` }}
-      >
-        <div
-          className={`flex-col grow basis-1/2 gap-4 h-full hidden lg:flex`}
-        >          
-          <PlaygroundTile
-              title="Audio"
-              className="w-full h-full grow"
-              childrenClassName="justify-center"
-          >
-            {audioTileContent}
-          </PlaygroundTile>
-        </div>
 
-        <PlaygroundTile
-            title="Chat"
-            className="h-full grow basis-1/4 hidden lg:flex"
-        >
-            {chatTileContent}
-        </PlaygroundTile>
+      {/* Increased gap between header and tiles: mt-6 */}
+      <div
+        className={`flex grow w-full selection:bg-gray-900 mt-6`}
+        style={{ height: `calc(100% - ${headerHeight}px - 1.5rem)` }} // 1.5rem = 24px (mt-6)
+      >
+        {/* Desktop layout: side-by-side */}
+        {!isMobile && (
+          <>
+            <div
+              className={`flex-col grow basis-1/4 gap-4 h-full hidden lg:flex`}
+            >
+              <PlaygroundTile
+                title="Audio"
+                className="w-full h-full grow"
+                childrenClassName="justify-center"
+              >
+                {audioTileContent}
+              </PlaygroundTile>
+            </div>
+
+            <PlaygroundTile
+              title="Chat"
+              className="h-full grow basis-3/4 hidden lg:flex"
+              childrenClassName="justify-center"
+            >
+              {chatTileContent}
+            </PlaygroundTile>
+          </>
+        )}
+
+        {/* Mobile layout: stacked, audio on top (1/4), chat below (3/4) */}
+        {isMobile && (
+          <div className="flex flex-col w-full h-full">
+            <div className="flex-none" style={{ height: "25%" }}>
+              <PlaygroundTile
+                title="Audio"
+                className="w-full h-full"
+                childrenClassName="justify-center"
+              >
+                {audioTileContent}
+              </PlaygroundTile>
+            </div>
+            <div className="flex-1 min-h-0" style={{ height: "75%" }}>
+              <PlaygroundTile
+                title="Chat"
+                className="w-full h-full"
+                childrenClassName="justify-center"
+              >
+                {chatTileContent}
+              </PlaygroundTile>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

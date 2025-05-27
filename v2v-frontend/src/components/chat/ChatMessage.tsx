@@ -12,21 +12,28 @@ export const ChatMessage = ({
   hideName,
 }: ChatMessageProps) => {
   const nameColorClass = isSelf
-    ? "text-gray-700"
-    : "text-green-800 text-ts-green uppercase text-xs";
+    ? "text-blue-300 font-bold"
+    : "text-gray-300 text-ts-gray uppercase text-xs font-bold";
   const messageColorClass = isSelf
-    ? "text-gray-300"
-    : "text-green-500 drop-shadow-green";
+    ? "text-blue-300 font-bold"
+    : "text-gray-300 drop-shadow-gray font-bold";
   
   return (
     <div className={`flex flex-col gap-1 ${hideName ? "pt-0" : "pt-6"}`}>
       {!hideName && (
-        <div className={nameColorClass}>
+        <div
+          className={`${nameColorClass} text-xs sm:text-sm md:text-base`}
+        >
           {name}
         </div>
       )}
       <div
-        className={`pr-4 ${messageColorClass} text-sm whitespace-pre-line`}
+        className={`
+          pr-4 whitespace-pre-line
+          ${messageColorClass}
+          text-base sm:text-lg md:text-xl
+          break-words
+        `}
       >
         {message}
       </div>

@@ -21,29 +21,62 @@ export const PlaygroundHeader = ({
   connectionState,
 }: PlaygroundHeaderProps) => {
   return (
-    <div className="flex gap-4 pt-4 justify-between items-center shrink-0" style={{ height: `${height}px` }}>
-      <div className="flex items-center gap-3 basis-2/3">
-        <a href="https://highiq.ai/">{logo ?? <HiLogo />}</a>
-        <div className="lg:basis-1/2 lg:text-center text-xs lg:text-base lg:font-semibold text-white" style = {{ marginLeft: '350px' }}>
-          {title}
-        </div>
+    <div
+      className="relative flex items-center w-full px-2 sm:px-4 pt-4 shrink-0"
+      style={{ height: `${height}px` }}
+    >
+      {/* Logo (left) */}
+      <div className="flex items-center flex-shrink-0 z-10">
+        <a href="https://highiq.ai/" className="flex items-center">
+          {logo ?? <HiLogo />}
+        </a>
       </div>
-      <div className="flex basis-1/3 justify-end items-center gap-2">
+
+      {/* Title (center, perfectly centered both vertically and horizontally) */}
+      <div
+        className={`
+          absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+          text-white font-semibold whitespace-nowrap text-center pointer-events-none z-0
+          text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl
+          w-full
+        `}
+        style={{ padding: 0 }}
+      >
+        {title}
+      </div>
+
+      {/* Button (right, does not affect title centering) */}
+      <div className="flex flex-shrink-0 z-10 ml-auto">
         <Button
           disabled={connectionState === ConnectionState.Connecting}
           onClick={onConnectClicked}
           className={
             connectionState === ConnectionState.Connected
-              ? "flex flex-row text-gray-950 text-sm justify-center border border-transparent bg-red-500 px-3 py-1 rounded-md transition ease-out duration-250 hover:bg-transparent hover:shadow-red hover:border-red-500 hover:text-red-500 active:scale-[0.98]"
-              : "flex flex-row text-gray-950 text-sm justify-center border border-transparent bg-green-500 px-3 py-1 rounded-md transition ease-out duration-250 hover:bg-transparent hover:shadow-green hover:border-green-500 hover:text-green-500 active:scale-[0.98]"
+              ? "flex flex-row text-gray-950 text-xs xs:text-sm sm:text-base justify-center border border-transparent bg-red-500 px-3 py-1.5 rounded-md transition ease-out duration-250 hover:bg-transparent hover:shadow-red hover:border-red-500 hover:text-red-500 active:scale-[0.98]"
+              : "flex flex-row text-gray-950 text-xs xs:text-sm sm:text-base justify-center border border-transparent bg-green-500 px-3 py-1.5 rounded-md transition ease-out duration-250 hover:bg-transparent hover:shadow-green hover:border-green-500 hover:text-green-500 active:scale-[0.98]"
           }
         >
-          {connectionState === ConnectionState.Connecting ? <LoadingSVG /> : connectionState === ConnectionState.Connected ? "Disconnect" : "Connect"}
+          {connectionState === ConnectionState.Connecting
+            ? <LoadingSVG />
+            : connectionState === ConnectionState.Connected
+              ? "Disconnect"
+              : "Connect"}
         </Button>
       </div>
     </div>
   );
 };
 
-const HiLogo = () => <Image src={hiLogo} alt="Logo" width={120} height={120} />;
-
+// Larger logo
+const HiLogo = () => (
+  <div className="flex items-center">
+    <Image
+      src={hiLogo}
+      alt="Logo"
+      width={100}
+      height={100}
+      className="w-20 h-20 xs:w-24 xs:h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 object-contain"
+      priority
+    />
+  </div>
+);

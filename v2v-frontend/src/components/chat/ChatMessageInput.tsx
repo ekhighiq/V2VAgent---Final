@@ -19,7 +19,6 @@ export const ChatMessageInput = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const windowSize = useWindowResize();
   const [isTyping, setIsTyping] = useState(false);
-  const [inputHasFocus, setInputHasFocus] = useState(false);
 
   const handleSend = useCallback(() => {
     if (onSend && message.trim() !== "") {
@@ -50,10 +49,10 @@ export const ChatMessageInput = ({
     }
   }, [windowSize.width]);
 
-  // Dynamic classes
-  const caretColor = inputHasFocus ? "green-500" : "gray-800";
-  const caretShadow = inputHasFocus ? "shadow-green" : "";
-  const caretCursor = !isTyping && inputHasFocus ? "cursor-animation" : "";
+  // Always visible caret styles
+  const caretColor = "gray-400";
+  const caretShadow = "shadow-gray";
+  const caretCursor = !isTyping ? "cursor-animation" : "";
 
   // Caret position calculation
   const caretTranslate =
@@ -68,7 +67,7 @@ export const ChatMessageInput = ({
 
   return (
     <div
-      className="flex flex-col gap-2 border-t border-t-gray-800"
+      className="flex flex-col gap-2 border-t border-t-gray-500 font-bold text-base"
       style={{ height }}
     >
       <div className="flex flex-row pt-3 gap-2 items-center relative">
@@ -80,7 +79,11 @@ export const ChatMessageInput = ({
         />
         <input
           ref={inputRef}
-          className="w-full text-xs caret-transparent bg-transparent opacity-25 text-gray-300 p-2 pr-6 rounded-sm focus:opacity-100 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700"
+          className={`
+            w-full bg-transparent opacity-100 text-gray-300 rounded-sm outline-none border border-transparent
+            text-base sm:text-lg md:text-xl
+            p-2 pr-6
+          `}
           style={{
             paddingLeft: message.length > 0 ? "12px" : "24px",
             caretShape: "block",
@@ -88,22 +91,26 @@ export const ChatMessageInput = ({
           placeholder={placeholder}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onFocus={() => setInputHasFocus(true)}
-          onBlur={() => setInputHasFocus(false)}
           onKeyDown={(e) => {
             if (e.key === "Enter") handleSend();
           }}
         />
         <span
           ref={hiddenInputRef}
-          className="absolute top-0 left-0 text-xs pl-3 text-amber-500 pointer-events-none opacity-0"
+          className="absolute top-0 left-0 pl-3 text-amber-500 pointer-events-none opacity-0 text-base sm:text-lg md:text-xl"
         >
           {message.replaceAll(" ", "\u00a0")}
         </span>
         <button
           disabled={!canSend}
           onClick={handleSend}
-          className={`text-xs uppercase text-green-500 hover:bg-green-950 p-2 rounded-md ${sendBtnOpacity} ${sendBtnPointer}`}
+          className={`
+            uppercase text-gray-300 hover:bg-gray-800 rounded-md font-bold
+            text-base sm:text-lg md:text-xl
+            px-3 py-2
+            ${sendBtnOpacity} ${sendBtnPointer}
+            transition
+          `}
         >
           Send
         </button>

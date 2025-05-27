@@ -109,8 +109,14 @@ export default function Playground({
       <div
         className={`flex flex-col items-center justify-center w-full h-48 [--lk-va-bar-width:30px] [--lk-va-bar-gap:20px] [--lk-fg:var(--lk-theme-color)]`}
       >
-        {/* Responsive mute/unmute button above visualizer, no background or border */}
-        <div className="mb-4 flex justify-center">
+        <BarVisualizer
+          state={voiceAssistant.state}
+          trackRef={voiceAssistant.audioTrack}
+          barCount={5}
+          options={{ minHeight: 20 }}
+        />
+        {/* Mute/unmute button BELOW visualizer */}
+        <div className="mt-6 flex justify-center">
           <TrackToggle
             source={Track.Source.Microphone}
             className="
@@ -123,14 +129,9 @@ export default function Playground({
             "
           />
         </div>
-        <BarVisualizer
-          state={voiceAssistant.state}
-          trackRef={voiceAssistant.audioTrack}
-          barCount={5}
-          options={{ minHeight: 20 }}
-        />
       </div>
     );
+    // -------------------------------------------------------
 
     if (roomState === ConnectionState.Disconnected) {
       return disconnectedContent;
